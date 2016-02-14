@@ -1,0 +1,43 @@
+apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "de.tudarmstadt.informatik.tk.assistance.profiler"
+        minSdkVersion 21
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    dexOptions {
+        incremental false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+    sourceSets {
+        main.java.srcDirs += 'src-gen'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'de.greenrobot:greendao:2.1.0'
+}

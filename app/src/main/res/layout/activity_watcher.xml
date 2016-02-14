@@ -1,0 +1,103 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
+    tools:context=".activity.WatcherActivity">
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|center"
+            android:keepScreenOn="true"
+            android:text="@string/maxIntervals"
+            android:textColor="#33b5e5"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/maxIntervals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|center"
+            android:keepScreenOn="true"
+            android:textColor="#33b5e5"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|center"
+            android:keepScreenOn="true"
+            android:text="@string/maxTime"
+            android:textColor="#33b5e5"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/maxRunningTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|center"
+            android:keepScreenOn="true"
+            android:textColor="#33b5e5"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:keepScreenOn="true"
+            android:text="@string/titleText"
+            android:textColor="#33b5e5"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/counter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="#33b5e5"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <android.support.v7.widget.LinearLayoutCompat
+            style="?metaButtonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="@color/black_overlay"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/startMeasurements"
+                style="?metaButtonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/startMeasure"
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </android.support.v7.widget.LinearLayoutCompat>
+    </FrameLayout>
+</FrameLayout>
