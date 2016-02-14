@@ -116,7 +116,7 @@ public class SystemUtils {
             totalMemoryPss += memInfo.getTotalPss();
         }
 
-        return new Memory(memoryInfo.availMem / 1024L, memoryInfo.totalMem / 1024L, totalMemoryPss);
+        return new Memory(totalMemoryPss);
     }
 
     /**

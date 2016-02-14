@@ -181,12 +181,8 @@ public class WatcherActivity extends AppCompatActivity {
 
                 Measurement measurement = new Measurement();
 
-                measurement.setVoltage(voltage);
-                measurement.setCurrent(current);
                 measurement.setPower((float) (voltage * current / 1_000.0));
-                measurement.setAvailableMemory(memory.getAvailableMemory());
-                measurement.setTotalMemory(memory.getTotalMemory());
-                measurement.setMemoryTotalPss(memory.getTotalPss());
+                measurement.setMemory(memory.getTotalPss());
                 measurement.setCpuLoad(systemUtils.getCPUUsage());
                 measurement.setTimestamp(probeTime);
 
@@ -325,19 +321,11 @@ public class WatcherActivity extends AppCompatActivity {
 
                 builder.append(measurement.getTimestamp())
                         .append(SEPARATOR_CSV)
-                        .append(measurement.getVoltage())
-                        .append(SEPARATOR_CSV)
-                        .append(measurement.getCurrent())
-                        .append(SEPARATOR_CSV)
                         .append(measurement.getPower())
                         .append(SEPARATOR_CSV)
                         .append(measurement.getCpuLoad())
                         .append(SEPARATOR_CSV)
-                        .append(measurement.getAvailableMemory())
-                        .append(SEPARATOR_CSV)
-                        .append(measurement.getMemoryTotalPss())
-                        .append(SEPARATOR_CSV)
-                        .append(measurement.getTotalMemory())
+                        .append(measurement.getMemory())
                         .append(NEW_LINE);
             }
 

@@ -7,12 +7,8 @@ package de.tudarmstadt.informatik.tk.assistance.profiler.db;
 public class Measurement {
 
     private Long id;
-    private Float voltage;
-    private Float current;
     private Float power;
-    private Long availableMemory;
-    private Long totalMemory;
-    private Long memoryTotalPss;
+    private Long memory;
     private Float cpuLoad;
     private long timestamp;
 
@@ -23,14 +19,10 @@ public class Measurement {
         this.id = id;
     }
 
-    public Measurement(Long id, Float voltage, Float current, Float power, Long availableMemory, Long totalMemory, Long memoryTotalPss, Float cpuLoad, long timestamp) {
+    public Measurement(Long id, Float power, Long memory, Float cpuLoad, long timestamp) {
         this.id = id;
-        this.voltage = voltage;
-        this.current = current;
         this.power = power;
-        this.availableMemory = availableMemory;
-        this.totalMemory = totalMemory;
-        this.memoryTotalPss = memoryTotalPss;
+        this.memory = memory;
         this.cpuLoad = cpuLoad;
         this.timestamp = timestamp;
     }
@@ -43,22 +35,6 @@ public class Measurement {
         this.id = id;
     }
 
-    public Float getVoltage() {
-        return voltage;
-    }
-
-    public void setVoltage(Float voltage) {
-        this.voltage = voltage;
-    }
-
-    public Float getCurrent() {
-        return current;
-    }
-
-    public void setCurrent(Float current) {
-        this.current = current;
-    }
-
     public Float getPower() {
         return power;
     }
@@ -67,28 +43,12 @@ public class Measurement {
         this.power = power;
     }
 
-    public Long getAvailableMemory() {
-        return availableMemory;
+    public Long getMemory() {
+        return memory;
     }
 
-    public void setAvailableMemory(Long availableMemory) {
-        this.availableMemory = availableMemory;
-    }
-
-    public Long getTotalMemory() {
-        return totalMemory;
-    }
-
-    public void setTotalMemory(Long totalMemory) {
-        this.totalMemory = totalMemory;
-    }
-
-    public Long getMemoryTotalPss() {
-        return memoryTotalPss;
-    }
-
-    public void setMemoryTotalPss(Long memoryTotalPss) {
-        this.memoryTotalPss = memoryTotalPss;
+    public void setMemory(Long memory) {
+        this.memory = memory;
     }
 
     public Float getCpuLoad() {

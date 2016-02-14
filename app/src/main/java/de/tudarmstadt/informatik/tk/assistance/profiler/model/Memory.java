@@ -7,26 +7,10 @@ package de.tudarmstadt.informatik.tk.assistance.profiler.model;
 public class Memory {
 
     // in KBs
-    private long availableMemory;
-
-    // in KBs
-    private long totalMemory;
-
-    // in KBs
     private long totalPss;
 
-    public Memory(long availableMemory, long totalMemory, long totalPss) {
-        this.availableMemory = availableMemory;
-        this.totalMemory = totalMemory;
+    public Memory(long totalPss) {
         this.totalPss = totalPss;
-    }
-
-    public long getAvailableMemory() {
-        return this.availableMemory;
-    }
-
-    public long getTotalMemory() {
-        return this.totalMemory;
     }
 
     public long getTotalPss() {
@@ -36,9 +20,7 @@ public class Memory {
     @Override
     public String toString() {
         return "Memory{" +
-                "availableMemory=" + availableMemory +
-                ", totalMemory=" + totalMemory +
-                ", totalPss=" + totalPss +
+                "totalPss=" + totalPss +
                 '}';
     }
 }
