@@ -306,7 +306,7 @@ public class WatcherActivity extends AppCompatActivity {
 
         try {
 
-            File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "/BatteryWatcher/");
+            File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "/Profiler/");
             dir.mkdirs();
 
 //            StorageUtils.exportDatabase(
@@ -331,7 +331,7 @@ public class WatcherActivity extends AppCompatActivity {
 
             // export to csv file: export
             File file = new File(dir.getPath() + "/" + "exp" +
-                    currentExperimentCounter + "_batterywatcher.csv");
+                    currentExperimentCounter + "_profiler.csv");
 
             file.createNewFile();
 
