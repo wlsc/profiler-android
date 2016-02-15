@@ -1,13 +1,11 @@
 package de.tudarmstadt.informatik.tk.assistance.profiler.util;
 
 import android.app.ActivityManager;
-import android.content.Context;
 import android.os.Debug;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import de.tudarmstadt.informatik.tk.assistance.profiler.model.Memory;
@@ -18,17 +16,17 @@ import de.tudarmstadt.informatik.tk.assistance.profiler.model.Memory;
  */
 public class SystemUtils {
 
-    private static SystemUtils INSTANCE;
-    private final Context context;
+    private static final Pattern PATTERN = Pattern.compile(" +");
 
-    private SystemUtils(Context context) {
-        this.context = context;
+    private static SystemUtils INSTANCE;
+
+    private SystemUtils() {
     }
 
-    public static SystemUtils getInstance(Context context) {
+    public static SystemUtils getInstance() {
 
         if (INSTANCE == null) {
-            INSTANCE = new SystemUtils(context);
+            INSTANCE = new SystemUtils();
         }
 
         return INSTANCE;
@@ -45,21 +43,21 @@ public class SystemUtils {
 
             String load = reader.readLine();
 
-            String[] toks = load.split(" +");
+            String[] toks = PATTERN.split(load);
 
             long idle1 = Long.parseLong(toks[4]);
             long cpu1 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[5])
                     + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 
             try {
-                Thread.sleep(40);
+                Thread.sleep(360);
             } catch (Exception e) {
             }
 
             reader.seek(0);
             load = reader.readLine();
 
-            toks = load.split(" +");
+            toks = PATTERN.split(load);
 
             long idle2 = Long.parseLong(toks[4]);
             long cpu2 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[5])
@@ -79,34 +77,8 @@ public class SystemUtils {
      *
      * @return
      */
-    public Memory getMemoryUsage() {
-
-        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        activityManager.getMemoryInfo(memoryInfo);
-
-        int[] pids = new int[6];
-//        pids[0] = android.os.Process.myPid();
-
-        ActivityManager manager = (ActivityManager) context.getApplicationContext().getSystemService(
-                context.getApplicationContext().ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> activities = ((ActivityManager) manager).getRunningAppProcesses();
-
-        int c = 0;
-        for (ActivityManager.RunningAppProcessInfo processInfo : activities) {
-
-            if (processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance1") ||
-                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance2") ||
-                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance3") ||
-                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance4") ||
-                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance5") ||
-                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistancemodules")) {
-
-                pids[c] = processInfo.pid;
-                c++;
-            }
-
-        }
+    public Memory getMemoryUsage(final ActivityManager activityManager,
+                                 final int[] pids) {
 
         long totalMemoryPss = 0;
 

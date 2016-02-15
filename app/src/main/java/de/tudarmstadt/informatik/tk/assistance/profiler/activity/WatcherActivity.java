@@ -1,5 +1,6 @@
 package de.tudarmstadt.informatik.tk.assistance.profiler.activity;
 
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +23,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,11 +34,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.tudarmstadt.informatik.tk.assistance.profiler.Config;
 import de.tudarmstadt.informatik.tk.assistance.profiler.R;
-import de.tudarmstadt.informatik.tk.assistance.profiler.db.Measurement;
 import de.tudarmstadt.informatik.tk.assistance.profiler.event.QueueNextExperimentEvent;
 import de.tudarmstadt.informatik.tk.assistance.profiler.model.Memory;
-import de.tudarmstadt.informatik.tk.assistance.profiler.provider.DaoProvider;
-import de.tudarmstadt.informatik.tk.assistance.profiler.provider.dao.MeasurementDao;
 import de.tudarmstadt.informatik.tk.assistance.profiler.util.SystemUtils;
 
 public class WatcherActivity extends AppCompatActivity {
@@ -49,9 +49,9 @@ public class WatcherActivity extends AppCompatActivity {
     // measure interval
     private static final int SAMPLING_RATE_IN_MILLIS = 50;
     // time to setup and turn off display
-    private static final int SETUP_DELAY_IN_SEC = 10;
+    private static final int SETUP_DELAY_IN_SEC = 5;
     // max running time of experiment
-    private static final int MAX_RUNNING_INTERVAL_TIME_IN_SEC = 60;
+    private static final int MAX_RUNNING_INTERVAL_TIME_IN_SEC = 10;
     // how many intervals to repeat?
     private static final int MAX_EXPERIMENTS_NUMBER = 3;
 
@@ -74,16 +74,32 @@ public class WatcherActivity extends AppCompatActivity {
 
     private static ScheduledThreadPoolExecutor experimentScheduler;
     private static ScheduledThreadPoolExecutor notificationScheduler;
+    private static ScheduledThreadPoolExecutor cpuScheduler;
 
-    private MeasurementDao dao;
+    private Runnable cpuRunnable;
+
+    //    private MeasurementDao dao;
     private PowerManager powerManager;
     private PowerManager.WakeLock wakeLock;
     private long startMeasurementsTime;
-    private long lastMeasurementTime;
 //    private boolean isUpdateUi;
 
-    private int currentExperimentCounter;
+    private int currentExperimentCounter = 0;
     private Runnable experimentRunnable;
+
+    private ActivityManager activityManager;
+    private List<ActivityManager.RunningAppProcessInfo> runningAppProcesses;
+    private List<ActivityManager.RunningServiceInfo> runningAppServices;
+
+    private static float cpuLoad;
+
+    private int currentMeasurement;
+    private long[] timestamps = new long[1201];
+    private float[] powers = new float[1201];
+    private float[] cpuLoads = new float[1201];
+    private long[] memories = new long[1201];
+
+    private int[] pids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,9 +111,9 @@ public class WatcherActivity extends AppCompatActivity {
             EventBus.getDefault().register(this);
         }
 
-        systemUtils = SystemUtils.getInstance(this);
+        systemUtils = SystemUtils.getInstance();
 
-        dao = DaoProvider.getInstance(this).getMeasurementDao();
+//        dao = DaoProvider.getInstance(this).getMeasurementDao();
 
         powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -108,6 +124,65 @@ public class WatcherActivity extends AppCompatActivity {
     }
 
     private void setupExperiment() {
+
+        cpuRunnable = () -> cpuLoad = systemUtils.getCPUUsage();
+
+        if (cpuScheduler != null) {
+            cpuScheduler.shutdownNow();
+        }
+
+        cpuScheduler = new ScheduledThreadPoolExecutor(1);
+        cpuScheduler.scheduleAtFixedRate(
+                cpuRunnable,
+                0,
+                SAMPLING_RATE_IN_MILLIS,
+                TimeUnit.MILLISECONDS);
+
+        activityManager = (ActivityManager) getApplicationContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+
+        runningAppProcesses =
+                ((ActivityManager) activityManager).getRunningAppProcesses();
+
+        runningAppServices =
+                ((ActivityManager) activityManager).getRunningServices(Integer.MAX_VALUE);
+
+        Set<Integer> pidsSet = new HashSet<>();
+
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningAppProcesses) {
+
+            if (processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance1") ||
+                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance2") ||
+                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance3") ||
+                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance4") ||
+                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistance5") ||
+                    processInfo.processName.contains("de.tudarmstadt.informatik.tk.assistancemodules")) {
+
+                pidsSet.add(processInfo.pid);
+            }
+        }
+
+        for (ActivityManager.RunningServiceInfo serviceInfo : runningAppServices) {
+
+            String packageName = serviceInfo.service.getPackageName();
+
+            if (packageName.contains("de.tudarmstadt.informatik.tk.assistance1") ||
+                    packageName.contains("de.tudarmstadt.informatik.tk.assistance2") ||
+                    packageName.contains("de.tudarmstadt.informatik.tk.assistance3") ||
+                    packageName.contains("de.tudarmstadt.informatik.tk.assistance4") ||
+                    packageName.contains("de.tudarmstadt.informatik.tk.assistance5") ||
+                    packageName.contains("de.tudarmstadt.informatik.tk.assistancemodules")) {
+
+                pidsSet.add(serviceInfo.pid);
+            }
+        }
+
+        this.pids = new int[pidsSet.size()];
+
+        int c = 0;
+        for (Integer id : pidsSet) {
+            this.pids[c++] = id.intValue();
+        }
 
         byte[] buffer = new byte[100];
 
@@ -128,6 +203,9 @@ public class WatcherActivity extends AppCompatActivity {
                     }
                     showCompletionNotification();
                     experimentScheduler.shutdownNow();
+                    if (cpuScheduler != null) {
+                        cpuScheduler.shutdownNow();
+                    }
                     return;
                 }
 
@@ -145,7 +223,10 @@ public class WatcherActivity extends AppCompatActivity {
 
                 if (elapsedSec >= MAX_RUNNING_INTERVAL_TIME_IN_SEC) {
 
-                    experimentScheduler.shutdown();
+                    experimentScheduler.shutdownNow();
+                    if (cpuScheduler != null) {
+                        cpuScheduler.shutdownNow();
+                    }
                     exportDatabase();
 
                     if (currentExperimentCounter <= MAX_EXPERIMENTS_NUMBER) {
@@ -177,19 +258,21 @@ public class WatcherActivity extends AppCompatActivity {
                 float current = (float) (currentRaw / 1_000.0);
 
                 // get memory information
-                Memory memory = systemUtils.getMemoryUsage();
+                Memory memory = systemUtils.getMemoryUsage(activityManager, pids);
 
-                Measurement measurement = new Measurement();
+                timestamps[currentMeasurement] = probeTime;
+                powers[currentMeasurement] = (float) (voltage * current / 1_000.0);
+                cpuLoads[currentMeasurement] = cpuLoad;
+                memories[currentMeasurement] = memory.getTotalPss();
 
-                measurement.setPower((float) (voltage * current / 1_000.0));
-                measurement.setMemory(memory.getTotalPss());
-                measurement.setCpuLoad(systemUtils.getCPUUsage());
-                measurement.setTimestamp(probeTime);
+//                Measurement measurement = new Measurement();
 
-                dao.insert(measurement);
+//                measurement.setPower((float) (voltage * current / 1_000.0));
+//                measurement.setMemory(memory.getTotalPss());
+//                measurement.setCpuLoad(cpuLoad);
+//                measurement.setTimestamp(probeTime);
 
-
-                lastMeasurementTime = probeTime;
+//                dao.insert(measurement);
 
             } catch (Exception e) {
                 Log.e(TAG, "Error getting energy", e);
@@ -201,6 +284,8 @@ public class WatcherActivity extends AppCompatActivity {
                 } else {
                     Log.d(TAG, "Wakelock was NULL");
                 }
+            } finally {
+                currentMeasurement++;
             }
         });
     }
@@ -222,8 +307,6 @@ public class WatcherActivity extends AppCompatActivity {
         if (notificationScheduler != null) {
             notificationScheduler.shutdownNow();
         }
-
-        currentExperimentCounter = 0;
     }
 
     @Override
@@ -244,6 +327,8 @@ public class WatcherActivity extends AppCompatActivity {
     @OnClick(R.id.startMeasurements)
     protected void onStartClick() {
 
+        currentExperimentCounter = 0;
+
         if (running) {
 
             if (wakeLock != null) {
@@ -256,8 +341,12 @@ public class WatcherActivity extends AppCompatActivity {
             }
 
             startMeasurement.setText(R.string.startMeasure);
-            experimentScheduler.shutdown();
+            experimentScheduler.shutdownNow();
             experimentScheduler = null;
+            if (cpuScheduler != null) {
+                cpuScheduler.shutdownNow();
+                cpuScheduler = null;
+            }
             isFinished = true;
             running = false;
 
@@ -315,17 +404,19 @@ public class WatcherActivity extends AppCompatActivity {
 
             // export to csv file: prepare data
             StringBuilder builder = new StringBuilder();
-            List<Measurement> dataToExport = dao.getAll();
+//            List<Measurement> dataToExport = dao.getAll();
 
-            for (Measurement measurement : dataToExport) {
+            Log.d(TAG, "currentMeasurement: " + currentMeasurement);
 
-                builder.append(measurement.getTimestamp())
+            for (int i = 0; i < currentMeasurement; i++) {
+
+                builder.append(timestamps[i])
                         .append(SEPARATOR_CSV)
-                        .append(measurement.getPower())
+                        .append(powers[i])
                         .append(SEPARATOR_CSV)
-                        .append(measurement.getCpuLoad())
+                        .append(cpuLoads[i])
                         .append(SEPARATOR_CSV)
-                        .append(measurement.getMemory())
+                        .append(memories[i])
                         .append(NEW_LINE);
             }
 
@@ -349,6 +440,8 @@ public class WatcherActivity extends AppCompatActivity {
 
         } catch (IOException e) {
             Log.e(TAG, "Cannot export database. Error: ", e);
+        } finally {
+            currentMeasurement = 0;
         }
     }
 
@@ -360,7 +453,7 @@ public class WatcherActivity extends AppCompatActivity {
             startMeasurementsTime = 0;
 
             // flush db
-            dao.delete(dao.getAll());
+//            dao.delete(dao.getAll());
 
             experimentScheduler = new ScheduledThreadPoolExecutor(1);
             experimentScheduler.scheduleAtFixedRate(
