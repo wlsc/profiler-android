@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BatteryWatcher</string>
+    <string name="app_name">Profiler</string>
 
     <string name="maxIntervals">MAX EXPERIMENT INTERVALS</string>
     <string name="maxTime">MAX RUNNING TIME</string>

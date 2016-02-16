@@ -6,9 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.PowerManager;
+import android.os.*;
+import android.os.Process;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -49,9 +48,9 @@ public class WatcherActivity extends AppCompatActivity {
     // measure interval
     private static final int SAMPLING_RATE_IN_MILLIS = 50;
     // time to setup and turn off display
-    private static final int SETUP_DELAY_IN_SEC = 5;
+    private static final int SETUP_DELAY_IN_SEC = 6;
     // max running time of experiment
-    private static final int MAX_RUNNING_INTERVAL_TIME_IN_SEC = 10;
+    private static final int MAX_RUNNING_INTERVAL_TIME_IN_SEC = 60;
     // how many intervals to repeat?
     private static final int MAX_EXPERIMENTS_NUMBER = 3;
 
@@ -94,10 +93,10 @@ public class WatcherActivity extends AppCompatActivity {
     private static float cpuLoad;
 
     private int currentMeasurement;
-    private long[] timestamps = new long[1201];
-    private float[] powers = new float[1201];
-    private float[] cpuLoads = new float[1201];
-    private long[] memories = new long[1201];
+    private long[] timestamps = new long[1_300];
+    private float[] powers = new float[1_300];
+    private float[] cpuLoads = new float[1_300];
+    private long[] memories = new long[1_300];
 
     private int[] pids;
 
@@ -224,9 +223,6 @@ public class WatcherActivity extends AppCompatActivity {
                 if (elapsedSec >= MAX_RUNNING_INTERVAL_TIME_IN_SEC) {
 
                     experimentScheduler.shutdownNow();
-                    if (cpuScheduler != null) {
-                        cpuScheduler.shutdownNow();
-                    }
                     exportDatabase();
 
                     if (currentExperimentCounter <= MAX_EXPERIMENTS_NUMBER) {
@@ -343,10 +339,6 @@ public class WatcherActivity extends AppCompatActivity {
             startMeasurement.setText(R.string.startMeasure);
             experimentScheduler.shutdownNow();
             experimentScheduler = null;
-            if (cpuScheduler != null) {
-                cpuScheduler.shutdownNow();
-                cpuScheduler = null;
-            }
             isFinished = true;
             running = false;
 
