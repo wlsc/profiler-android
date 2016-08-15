@@ -63,9 +63,6 @@ public class WatcherActivity extends AppCompatActivity {
     @Bind(R.id.startMeasurements)
     protected AppCompatButton startMeasurement;
 
-//    @Bind(R.id.counter)
-//    protected AppCompatTextView counterTv;
-
     private SystemUtils systemUtils;
 
     private boolean running;
@@ -81,7 +78,6 @@ public class WatcherActivity extends AppCompatActivity {
     private PowerManager powerManager;
     private PowerManager.WakeLock wakeLock;
     private long startMeasurementsTime;
-//    private boolean isUpdateUi;
 
     private int currentExperimentCounter = 0;
     private Runnable experimentRunnable;
@@ -116,8 +112,6 @@ public class WatcherActivity extends AppCompatActivity {
 
         powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-
-//        isUpdateUi = true;
 
         setupExperiment();
     }
@@ -216,10 +210,6 @@ public class WatcherActivity extends AppCompatActivity {
                 long timeDiff = probeTime - startMeasurementsTime;
                 long elapsedSec = TimeUnit.MILLISECONDS.toSeconds(timeDiff);
 
-//                if (isUpdateUi) {
-//                    counterTv.setText(String.valueOf(elapsedSec));
-//                }
-
                 if (elapsedSec >= MAX_RUNNING_INTERVAL_TIME_IN_SEC) {
 
                     experimentScheduler.shutdownNow();
@@ -289,14 +279,12 @@ public class WatcherActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        isUpdateUi = true;
         ButterKnife.bind(this);
 
         maxRunningTime.setText(String.valueOf(MAX_RUNNING_INTERVAL_TIME_IN_SEC) + " sec");
         maxIntervals.setText(String.valueOf(MAX_EXPERIMENTS_NUMBER));
 
         if (isFinished) {
-//            counterTv.setText(String.valueOf(MAX_RUNNING_INTERVAL_TIME_IN_SEC));
             startMeasurement.setText(R.string.startMeasure);
         }
 
@@ -308,7 +296,6 @@ public class WatcherActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        isUpdateUi = false;
         ButterKnife.unbind(this);
     }
 
@@ -347,7 +334,6 @@ public class WatcherActivity extends AppCompatActivity {
         } else {
 
             startMeasurement.setText(R.string.stopMeasure);
-//            counterTv.setText("0");
 
             if (!wakeLock.isHeld()) {
                 wakeLock.acquire();
