@@ -11,6 +11,8 @@ android:
     # Emulators
     - sys-img-armeabi-v7a-android-22
     - sys-img-x86-android-16
+before_install:
+ - chmod +x gradlew
 script:
     - ./gradlew clean
 licenses:
