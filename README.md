@@ -1,4 +1,5 @@
 # Battery Profiler for Android
+![Image of building process](https://travis-ci.org/Telecooperation/profiler-android.svg?branch=master)
 
 Profiler for measurement different smartphone characteristics (e.g., voltage, current, CPU load).
 
