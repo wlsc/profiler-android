@@ -6,8 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.*;
-import android.os.Process;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -28,9 +29,10 @@ import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import de.tudarmstadt.informatik.tk.assistance.profiler.Config;
 import de.tudarmstadt.informatik.tk.assistance.profiler.R;
 import de.tudarmstadt.informatik.tk.assistance.profiler.event.QueueNextExperimentEvent;
@@ -54,14 +56,16 @@ public class WatcherActivity extends AppCompatActivity {
     // how many intervals to repeat?
     private static final int MAX_EXPERIMENTS_NUMBER = 3;
 
-    @Bind(R.id.maxIntervals)
+    @BindView(R.id.maxIntervals)
     protected AppCompatTextView maxIntervals;
 
-    @Bind(R.id.maxRunningTime)
+    @BindView(R.id.maxRunningTime)
     protected AppCompatTextView maxRunningTime;
 
-    @Bind(R.id.startMeasurements)
+    @BindView(R.id.startMeasurements)
     protected AppCompatButton startMeasurement;
+
+    private Unbinder unbinder;
 
     private SystemUtils systemUtils;
 
@@ -279,7 +283,7 @@ public class WatcherActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
 
         maxRunningTime.setText(String.valueOf(MAX_RUNNING_INTERVAL_TIME_IN_SEC) + " sec");
         maxIntervals.setText(String.valueOf(MAX_EXPERIMENTS_NUMBER));
@@ -296,7 +300,9 @@ public class WatcherActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        ButterKnife.unbind(this);
+        if (unbinder != null) {
+            unbinder.unbind();
+        }
     }
 
     @Override
