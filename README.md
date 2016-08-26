@@ -3,6 +3,8 @@
 
 Profiler for measurement different smartphone characteristics (e.g., voltage, current, CPU load).
 
+For more information please see the [website](https://telecooperation.github.io/profiler-android/).
+
 ### License
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
