@@ -1,5 +1,7 @@
 # Battery Profiler for Android
-![Image of building process](https://travis-ci.org/Telecooperation/profiler-android.svg?branch=master) [![codebeat badge](https://codebeat.co/badges/59b019d8-143b-49a2-b1e5-a217cb040a4f)](https://codebeat.co/projects/github-com-telecooperation-profiler-android)
+[![License](https://img.shields.io/badge/license-Apache-orange.svg?style=flat)](https://opensource.org/licenses/Apache-2.0)
+![Image of building process](https://travis-ci.org/Telecooperation/profiler-android.svg?branch=master) 
+[![codebeat badge](https://codebeat.co/badges/59b019d8-143b-49a2-b1e5-a217cb040a4f)](https://codebeat.co/projects/github-com-telecooperation-profiler-android)
 
 Profiler for measurement different smartphone characteristics (e.g., voltage, current, CPU load).
 
